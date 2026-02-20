@@ -12,7 +12,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe());
-  await app.listen(process.env.PORT ?? 8026);
+  const port = process.env.PORT ?? 8026;
+  await app.listen(port, '0.0.0.0');
+  console.log(`Application listening on port ${port}`);
 }
 bootstrap().catch((error) => {
   console.error(error);
