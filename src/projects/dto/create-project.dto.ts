@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty, IsOptional, IsString, Matches, MaxLength } from 'class-validator';
+import { ProjectCategory } from '../schemas/project.schema';
 
 export class CreateProjectDto {
   @IsString()
@@ -15,4 +16,16 @@ export class CreateProjectDto {
   @IsString()
   @MaxLength(1000)
   description?: string;
+
+  @IsOptional()
+  @IsEnum(ProjectCategory)
+  category?: ProjectCategory;
+
+  @IsOptional()
+  @IsDateString()
+  startDate?: string;
+
+  @IsOptional()
+  @IsDateString()
+  endDate?: string;
 }
