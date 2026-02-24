@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcrypt';
 import { Role } from '../common/enums/role.enum';
 import { UserDocument } from '../users/schemas/user.schema';
+import { ProjectsService } from '../projects/projects.service';
 
 type AuthenticatedUser = {
   id: string;
@@ -19,6 +20,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private projectsService: ProjectsService,
   ) {}
 
   private getAccessSecret(): string {
@@ -82,6 +84,19 @@ export class AuthService {
     const refreshTokenHash = await bcrypt.hash(tokens.refreshToken, 10);
     await this.usersService.updateRefreshTokenHash(user.id, refreshTokenHash);
     return tokens;
+  }
+
+  async loginWithProjects(user: AuthenticatedUser) {
+    const [tokens, projects] = await Promise.all([
+      this.login(user),
+      this.projectsService.listForUser(user.id),
+    ]);
+
+    return {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      projects,
+    };
   }
 
   async refreshAccessToken(
