@@ -8,6 +8,26 @@ export enum ProjectMemberRole {
   VIEWER = 'VIEWER',
 }
 
+export enum ProjectStatus {
+  ACTIVE = 'ACTIVE',
+  ARCHIVED = 'ARCHIVED',
+  COMPLETED = 'COMPLETED',
+}
+
+export enum ProjectCategory {
+  SOFTWARE = 'SOFTWARE',
+  MARKETING = 'MARKETING',
+  DESIGN = 'DESIGN',
+  HR = 'HR',
+  FINANCE = 'FINANCE',
+  OPERATIONS = 'OPERATIONS',
+  OTHER = 'OTHER',
+}
+
+export enum ProjectVisibility {
+  PRIVATE = 'PRIVATE',
+}
+
 @Schema({ _id: false })
 export class ProjectMember {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
@@ -31,6 +51,24 @@ export class Project {
 
   @Prop({ default: '' })
   description: string;
+
+  @Prop({ type: String, enum: ProjectStatus, default: ProjectStatus.ACTIVE })
+  status: ProjectStatus;
+
+  @Prop({ type: String, enum: ProjectCategory, default: ProjectCategory.SOFTWARE })
+  category: ProjectCategory;
+
+  @Prop({ type: String, enum: ProjectVisibility, default: ProjectVisibility.PRIVATE, immutable: true })
+  visibility: ProjectVisibility;
+
+  @Prop({ default: '📋' })
+  icon: string;
+
+  @Prop({ type: Date, default: null })
+  startDate: Date | null;
+
+  @Prop({ type: Date, default: null })
+  endDate: Date | null;
 
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   ownerId: Types.ObjectId;

@@ -10,15 +10,29 @@ import {
   Project,
   ProjectDocument,
   ProjectMemberRole,
+  ProjectVisibility,
 } from './schemas/project.schema';
 import { AddProjectMemberDto } from './dto/add-project-member.dto';
+
+const PROJECT_ICONS = ['📋', '🚀', '🧩', '🛠️', '📈', '🎯', '🧠', '🗂️'];
+
+const pickProjectIcon = (projectKey: string): string => {
+  const normalized = projectKey.trim().toUpperCase();
+  let hash = 0;
+
+  for (let i = 0; i < normalized.length; i += 1) {
+    hash = (hash * 31 + normalized.charCodeAt(i)) >>> 0;
+  }
+
+  return PROJECT_ICONS[hash % PROJECT_ICONS.length];
+};
 
 @Injectable()
 export class ProjectsService {
   constructor(
     @InjectModel(Project.name)
     private readonly projectModel: Model<ProjectDocument>,
-  ) {}
+  ) { }
 
   async create(ownerUserId: string, dto: CreateProjectDto) {
     const ownerId = new Types.ObjectId(ownerUserId);
@@ -27,6 +41,11 @@ export class ProjectsService {
       name: dto.name,
       key: dto.key,
       description: dto.description ?? '',
+      category: dto.category,
+      icon: pickProjectIcon(dto.key),
+      visibility: ProjectVisibility.PRIVATE,
+      startDate: dto.startDate ? new Date(dto.startDate) : null,
+      endDate: dto.endDate ? new Date(dto.endDate) : null,
       ownerId,
       members: [{ userId: ownerId, role: ProjectMemberRole.OWNER }],
     });
