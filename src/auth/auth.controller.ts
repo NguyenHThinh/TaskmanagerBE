@@ -43,11 +43,10 @@ const parseCookieValue = (
 };
 
 const setRefreshCookie = (res: Response, token: string): void => {
-  const isProduction = process.env.NODE_ENV === 'production';
   res.cookie(REFRESH_COOKIE_NAME, token, {
     httpOnly: true,
-    sameSite: isProduction ? 'none' : 'lax',
-    secure: isProduction,
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
     maxAge: REFRESH_TOKEN_MAX_AGE,
     path: '/',
   });
@@ -62,19 +61,19 @@ export class AuthController {
   async login(
     @Body() body: LoginDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<ApiResponse<{ accessToken: string }>> {
+  ): Promise<ApiResponse<{ accessToken: string; projects: any[] }>> {
     const user = await this.authService.validateUser(body.email, body.password);
     if (!user) {
       throw new UnauthorizedException('Email hoặc mật khẩu không chính xác');
     }
 
-    const tokens = await this.authService.login(user);
-    setRefreshCookie(res, tokens.refreshToken);
+    const result = await this.authService.loginWithProjects(user);
+    setRefreshCookie(res, result.refreshToken);
 
     return {
       success: true,
       message: 'Đăng nhập thành công',
-      data: { accessToken: tokens.accessToken },
+      data: { accessToken: result.accessToken, projects: result.projects },
     };
   }
 
