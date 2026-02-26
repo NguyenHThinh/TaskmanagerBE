@@ -41,6 +41,8 @@ export class ProjectsService {
         $or: [{ ownerId: objectId }, { 'members.userId': objectId }],
       })
       .sort({ updatedAt: -1 })
+      .limit(500) // Giới hạn tránh load quá nhiều projects vào RAM
+      .lean()
       .exec();
   }
 

@@ -30,7 +30,16 @@ export class TasksService {
     if (query.priority) filter.priority = query.priority;
     if (query.assigneeId) filter.assigneeId = new Types.ObjectId(query.assigneeId);
 
-    return this.taskModel.find(filter).sort({ updatedAt: -1 }).exec();
+    const limit = Math.min(query.limit ?? 50, 100);
+    const skip = Math.max(query.skip ?? 0, 0);
+
+    return this.taskModel
+      .find(filter)
+      .sort({ updatedAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean()
+      .exec();
   }
 
   async create(projectId: string, userId: string, dto: CreateTaskDto) {
