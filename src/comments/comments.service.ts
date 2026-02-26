@@ -4,7 +4,7 @@ import { Model, Types } from 'mongoose';
 import { ProjectsService } from '../projects/projects.service';
 import { ProjectMemberRole } from '../projects/schemas/project.schema';
 import { TasksService } from '../tasks/tasks.service';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { CreateCommentDto } from './dto/comment.dto';
 import { TaskComment, TaskCommentDocument } from './schemas/task-comment.schema';
 
 @Injectable()
@@ -16,13 +16,21 @@ export class CommentsService {
     private readonly projectsService: ProjectsService,
   ) {}
 
-  async listByTask(taskId: string, userId: string, limit = 100) {
+  async listByTask(
+    taskId: string,
+    userId: string,
+    limit = 100,
+    skip = 0,
+  ) {
     const task = await this.tasksService.getOne(taskId, userId);
+    const safeLimit = Math.min(limit ?? 100, 200);
+    const safeSkip = Math.max(skip ?? 0, 0);
 
     return this.commentModel
       .find({ taskId: task._id })
       .sort({ createdAt: 1 })
-      .limit(Math.min(limit, 200)) // Giới hạn tránh load quá nhiều comments
+      .skip(safeSkip)
+      .limit(safeLimit)
       .lean()
       .exec();
   }

@@ -4,11 +4,13 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CreateCommentDto } from './dto/create-comment.dto';
+import { CommentQueryDto } from './dto/comment-query.dto';
+import { CreateCommentDto } from './dto/comment.dto';
 import { CommentsService } from './comments.service';
 
 @Controller('tasks/:taskId/comments')
@@ -17,8 +19,17 @@ export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   @Get()
-  list(@Param('taskId') taskId: string, @Req() req: any) {
-    return this.commentsService.listByTask(taskId, req.user.userId);
+  list(
+    @Param('taskId') taskId: string,
+    @Req() req: { user: { userId: string } },
+    @Query() query: CommentQueryDto,
+  ) {
+    return this.commentsService.listByTask(
+      taskId,
+      req.user.userId,
+      query.limit,
+      query.skip,
+    );
   }
 
   @Post()
