@@ -9,8 +9,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CommentQueryDto } from './dto/comment-query.dto';
-import { CreateCommentDto } from './dto/comment.dto';
+import { CommentQueryDto, CreateCommentDto } from './dto/comment.dto';
 import { CommentsService } from './comments.service';
 
 @Controller('tasks/:taskId/comments')
