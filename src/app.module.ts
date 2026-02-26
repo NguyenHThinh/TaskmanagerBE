@@ -18,6 +18,7 @@ import { CommentsModule } from './comments/comments.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         uri: configService.get<string>('MONGODB_URI'),
+        maxPoolSize: 50, // Giới hạn connection pool, tránh tích lũy
       }),
       inject: [ConfigService],
     }),

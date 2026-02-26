@@ -16,12 +16,14 @@ export class CommentsService {
     private readonly projectsService: ProjectsService,
   ) {}
 
-  async listByTask(taskId: string, userId: string) {
+  async listByTask(taskId: string, userId: string, limit = 100) {
     const task = await this.tasksService.getOne(taskId, userId);
 
     return this.commentModel
       .find({ taskId: task._id })
       .sort({ createdAt: 1 })
+      .limit(Math.min(limit, 200)) // Giới hạn tránh load quá nhiều comments
+      .lean()
       .exec();
   }
 
