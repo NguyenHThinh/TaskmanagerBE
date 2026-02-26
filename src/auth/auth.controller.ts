@@ -45,8 +45,8 @@ const parseCookieValue = (
 const setRefreshCookie = (res: Response, token: string): void => {
     res.cookie(REFRESH_COOKIE_NAME, token, {
         httpOnly: true,
-        sameSite: 'lax',
-        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none', // Cần 'none' để gửi cookie khi FE và BE khác domain (cross-origin)
+        secure: true, // Bắt buộc khi sameSite='none'
         maxAge: REFRESH_TOKEN_MAX_AGE,
         path: '/',
     });
@@ -126,7 +126,7 @@ export class AuthController {
             throw new UnauthorizedException('Thiếu refresh token');
         }
         await this.authService.logout(refreshToken);
-        res.clearCookie(REFRESH_COOKIE_NAME);
+        res.clearCookie(REFRESH_COOKIE_NAME, { path: '/', sameSite: 'none', secure: true });
         return {
             success: true,
             message: 'Đăng xuất thành công',
